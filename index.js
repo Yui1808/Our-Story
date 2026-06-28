@@ -45,23 +45,49 @@ window.addEventListener('scroll', triggerAnimation);
 triggerAnimation(); // Initial check
 
 
-// 3. Reveal Video Button Logic
+// 3. Reveal Video Button Logic & Background Music Controls
+const startJourneyBtn = document.getElementById('start-journey-btn');
+const timelineContainer = document.querySelector('.timeline-container');
 const revealBtn = document.getElementById('reveal-btn');
 const videoWrapper = document.getElementById('video-wrapper');
 const myVideo = document.getElementById('my-video');
+const bgMusic = document.getElementById('bg-music');
 
+// Audio optimization: Fast-load music in memory as soon as script runs
+if (bgMusic) {
+    bgMusic.load(); 
+}
+
+// Hero page waale button par click karte hi instantly audio chalega aur scroll hoga
+startJourneyBtn.addEventListener('click', () => {
+    // Instant Audio Play (Soft 25% volume)
+    bgMusic.volume = 0.25;
+    
+    // Explicitly resetting playhead for zero latency trigger
+    if (bgMusic.currentTime === 0 || bgMusic.paused) {
+        bgMusic.play().catch(err => console.log("Audio playback managed safely"));
+    }
+    
+    // Smooth scroll to timeline section
+    timelineContainer.scrollIntoView({ behavior: 'smooth' });
+});
+
+// Final Video Reveal Logic
 revealBtn.addEventListener('click', () => {
-    // Show video wrapper
+    // Background music ko pause karo
+    bgMusic.pause();
+    
+    // Video section show karo
     videoWrapper.classList.remove('hidden');
     videoWrapper.style.opacity = '1';
     
-    // Smooth scroll to video
+    // Video scroll and play logic
     setTimeout(() => {
         videoWrapper.scrollIntoView({ behavior: 'smooth' });
-        // Auto play the video
+        myVideo.volume = 1.0; // Video audio full volume
         myVideo.play();
     }, 200);
     
-    // Hide the button gracefully
+    // Button hide
     revealBtn.style.display = 'none';
 });

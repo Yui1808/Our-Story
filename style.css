@@ -100,11 +100,26 @@ body {
     letter-spacing: 2px;
 }
 
-.scroll-down {
+/* Is naye block ko wahan paste kar do */
+.scroll-down-btn {
     margin-top: 50px;
-    font-size: 0.9rem;
-    color: #ff5e7e;
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #ff7b93 0%, #ff5e7e 100%);
+    border: none;
+    padding: 12px 28px;
+    border-radius: 25px;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(255, 94, 126, 0.3);
+    font-family: 'Poppins', sans-serif;
     animation: bounce 2s infinite;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.scroll-down-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(255, 94, 126, 0.5);
 }
 
 @keyframes bounce {

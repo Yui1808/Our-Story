@@ -1,7 +1,7 @@
 // ==========================================
 // 0. Password Protection Lock Logic
 // ==========================================
-const CORRECT_PASSWORD = "1405"; // Apni anniversary date ya jo chaho change kar sakte ho
+const CORRECT_PASSWORD = "Will u be my Wifeee"; // Apni anniversary date ya jo chaho change kar sakte ho
 
 const passwordScreen = document.getElementById('password-screen');
 const mainContent = document.getElementById('main-content');

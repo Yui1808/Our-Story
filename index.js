@@ -21,7 +21,7 @@ let scanInterval = null;
 // Toggle Manual Pass Box
 toggleFallbackBtn.addEventListener('click', () => {
     manualAuth.classList.toggle('auth-hidden');
-    if(!manualAuth.classList.contains('auth-hidden')) {
+    if (!manualAuth.classList.contains('auth-hidden')) {
         passwordInput.focus();
     }
 });
@@ -43,10 +43,10 @@ passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') check
 function unlockDashboard() {
     if (scanInterval) clearInterval(scanInterval);
     if (video.srcObject) {
-        video.srcObject.getTracks().forEach(track => track.stop()); 
+        video.srcObject.getTracks().forEach(track => track.stop());
     }
     passwordScreen.style.opacity = '0';
-    
+
     // Play Background audio seamlessly upon verification interaction
     bgMusic.play().catch(err => console.log("Audio autoplay protected by browser: ", err));
 
@@ -70,32 +70,34 @@ function startWebcam() {
 async function initFaceTracker() {
     try {
         console.log("=== STEP 1: Starting Webcam ===");
-        startWebcam(); 
+        startWebcam();
 
         scanStatus.innerText = "Syncing Recognition Models... 🧠";
-        
-        const modelUrl = './models/'; 
+
+        const modelUrl = './models/';
         console.log("=== STEP 2: Loading Models from:", modelUrl);
-        
+
         await Promise.all([
             faceapi.nets.tinyFaceDetector.loadFromUri(modelUrl),
             faceapi.nets.faceLandmark68Net.loadFromUri(modelUrl),
             faceapi.nets.faceRecognitionNet.loadFromUri(modelUrl)
         ]);
         console.log("=== STEP 3: Models loaded successfully! ===");
-        
+
         scanStatus.innerText = "Processing our reference images... 📝";
-        
+
         console.log("=== STEP 4: Fetching Reference Images ===");
         const imgYui = await faceapi.fetchImage('Yuii.png');
-        const imgSiya = await faceapi.fetchImage('Siyaa.jpg'); 
-        
+        const imgSiya = await faceapi.fetchImage('Siyaa.jpg');
+
         console.log("=== STEP 5: Detecting faces in reference images ===");
-        const descYui = await faceapi.detectSingleFace(imgYui, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
-        const descSiya = await faceapi.detectSingleFace(imgSiya, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
-        
+        // NAYA CODE (Tweak ke sath):
+        const detectorOptions = new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.25 });
+
+        const descYui = await faceapi.detectSingleFace(imgYui, detectorOptions).withFaceLandmarks().withFaceDescriptor();
+        const descSiya = await faceapi.detectSingleFace(imgSiya, detectorOptions).withFaceLandmarks().withFaceDescriptor();
         console.log("Reference Detection Results:", { descYui, descSiya });
-        
+
         if (!descYui || !descSiya) {
             console.error("❌ CRITICAL: Reference images mein chehra clear nahi mila!");
             scanStatus.innerText = "Reference face not clear. Use Phrase Bypass! 👇";
@@ -106,15 +108,15 @@ async function initFaceTracker() {
             new faceapi.LabeledFaceDescriptors('anshul', [descYui.descriptor]),
             new faceapi.LabeledFaceDescriptors('priyanshi', [descSiya.descriptor])
         ];
-        
+
         faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.55);
         console.log("=== STEP 6: FaceMatcher Initialized! ===");
-        
+
         scanStatus.innerText = "Scanner active. Stand together! 👥";
 
         // === STEP 7: DIRECTLY START THE SCANNING LOOP (No event wrapper!) ===
         console.log("=== STEP 7: Launching Scanning Loop directly! 🚀 ===");
-        
+
         scanInterval = setInterval(async () => {
             if (passwordScreen.classList.contains('auth-hidden')) {
                 clearInterval(scanInterval);
@@ -126,16 +128,16 @@ async function initFaceTracker() {
 
             try {
                 const liveDetections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
-                                                    .withFaceLandmarks()
-                                                    .withFaceDescriptors();
+                    .withFaceLandmarks()
+                    .withFaceDescriptors();
 
                 let anshulFound = false;
                 let priyanshiFound = false;
 
                 for (const face of liveDetections) {
                     const bestMatch = faceMatcher.findBestMatch(face.descriptor);
-                    console.log("Live face match found:", bestMatch.toString()); 
-                    
+                    console.log("Live face match found:", bestMatch.toString());
+
                     if (bestMatch.label === 'anshul') anshulFound = true;
                     if (bestMatch.label === 'priyanshi') priyanshiFound = true;
                 }
@@ -169,18 +171,18 @@ async function initFaceTracker() {
 function triggerAnimation() {
     const container = document.getElementById('flower-container');
     const flowers = ['🌹', '🌸', '💐', '❤️', '🌻'];
-    
+
     setInterval(() => {
-        if (document.hidden) return; 
+        if (document.hidden) return;
         const flower = document.createElement('div');
         flower.className = 'floating-flower';
         flower.innerText = flowers[Math.floor(Math.random() * flowers.length)];
         flower.style.left = Math.random() * 100 + 'vw';
-        flower.style.animationDuration = Math.random() * 3 + 4 + 's'; 
+        flower.style.animationDuration = Math.random() * 3 + 4 + 's';
         flower.style.fontSize = Math.random() * 15 + 15 + 'px';
-        
+
         container.appendChild(flower);
-        
+
         setTimeout(() => { flower.remove(); }, 7000);
     }, 300);
 }
@@ -198,7 +200,7 @@ function initScrollAnimations() {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('active');
-                observer.unobserve(entry.target); 
+                observer.unobserve(entry.target);
             }
         });
     }, observerOptions);
@@ -221,10 +223,10 @@ const myVideo = document.getElementById('my-video');
 revealBtn.addEventListener('click', () => {
     videoWrapper.classList.remove('hidden');
     videoWrapper.scrollIntoView({ behavior: 'smooth' });
-    
+
     bgMusic.volume = 0.15;
     myVideo.play();
-    
+
     revealBtn.innerText = "Enjoy our moment... 🦋";
     revealBtn.style.opacity = '0.7';
     revealBtn.style.pointerEvents = 'none';

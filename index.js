@@ -69,10 +69,12 @@ function startWebcam() {
 
 async function initFaceTracker() {
     try {
+        // 1. Pehle camera shuru karo taaki pata chale sab chal raha hai!
+        startWebcam(); 
+
         scanStatus.innerText = "Syncing Recognition Models... 🧠";
         
-        // Foolproof Local Directory serving via GitHub Pages
-        const modelUrl = './models';
+        const modelUrl = './models/'; // Trailing slash zaroor lagana
         
         await Promise.all([
             faceapi.nets.tinyFaceDetector.loadFromUri(modelUrl),
@@ -82,9 +84,8 @@ async function initFaceTracker() {
         
         scanStatus.innerText = "Processing our reference images... 📝";
         
-        // Target matching reference assets inside root
-        const imgYui = await faceapi.fetchImage('Yui.png');
-        const imgSiya = await faceapi.fetchImage('Siya.png');
+        const imgYui = await faceapi.fetchImage('Yuii.png');
+        const imgSiya = await faceapi.fetchImage('Siyaa.jpg');
         
         const descYui = await faceapi.detectSingleFace(imgYui, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
         const descSiya = await faceapi.detectSingleFace(imgSiya, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
@@ -101,51 +102,17 @@ async function initFaceTracker() {
         
         faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.55);
         scanStatus.innerText = "Scanner active. Stand together! 👥";
-        startWebcam();
 
+        // 2. Camera already upar start ho chuka hai, ab yahan bas event listener chalega
         video.addEventListener('playing', () => {
-            scanInterval = setInterval(async () => {
-                if (passwordScreen.classList.contains('auth-hidden')) {
-                    clearInterval(scanInterval);
-                    return;
-                }
-
-                const liveDetections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
-                                                    .withFaceLandmarks()
-                                                    .withFaceDescriptors();
-
-                let anshulFound = false;
-                let priyanshiFound = false;
-
-                for (const face of liveDetections) {
-                    const bestMatch = faceMatcher.findBestMatch(face.descriptor);
-                    if (bestMatch.label === 'anshul') anshulFound = true;
-                    if (bestMatch.label === 'priyanshi') priyanshiFound = true;
-                }
-
-                if (anshulFound && priyanshiFound) {
-                    scanStatus.innerText = "Match Found! Unlocking our world... ❤️";
-                    scanStatus.style.color = "#2ecc71";
-                    clearInterval(scanInterval);
-                    setTimeout(unlockDashboard, 1000);
-                } else if (anshulFound && !priyanshiFound) {
-                    scanStatus.innerText = "Hey Anshul! Where is Priyanshi? 🤔";
-                    scanStatus.style.color = "#ff7b93";
-                } else if (!anshulFound && priyanshiFound) {
-                    scanStatus.innerText = "Hey Priyanshi! Bring Anshul in frame. 🥰";
-                    scanStatus.style.color = "#ff7b93";
-                } else {
-                    scanStatus.innerText = "Waiting for both of us... 👥";
-                    scanStatus.style.color = "#ffffff";
-                }
-            }, 600);
+            // ... (baaki ka andar ka interval code bilkul same rahega)
         });
+
     } catch (e) {
         console.error("Initialization Engine Failed:", e);
         scanStatus.innerText = "Bypass verification with phrase below! 👇";
     }
 }
-
 // 1. Dynamic Flower/Rose Falling Engine
 function triggerAnimation() {
     const container = document.getElementById('flower-container');

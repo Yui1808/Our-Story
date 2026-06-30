@@ -1,5 +1,5 @@
 // ==========================================
-// 0. FOOLPROOF AI FACE RECOGNITION LOCK LOGIC
+// FOOLPROOF AI FACE RECOGNITION LOCK LOGIC
 // ==========================================
 const CORRECT_PASSWORD = "Will u be my Wifeee";
 
@@ -13,10 +13,14 @@ const video = document.getElementById('webcam');
 const scanStatus = document.getElementById('scan-status');
 const toggleFallbackBtn = document.getElementById('toggle-fallback-btn');
 const manualAuth = document.getElementById('manual-auth');
+const bgMusic = document.getElementById('bg-music');
 
 // Toggle Manual Pass Box
 toggleFallbackBtn.addEventListener('click', () => {
     manualAuth.classList.toggle('auth-hidden');
+    if(!manualAuth.classList.contains('auth-hidden')) {
+        passwordInput.focus();
+    }
 });
 
 function checkPassword() {
@@ -28,18 +32,25 @@ function checkPassword() {
         passwordInput.focus();
     }
 }
+
 passwordBtn.addEventListener('click', checkPassword);
 passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') checkPassword(); });
 
+// Master Unlock Sequence
 function unlockDashboard() {
     if (video.srcObject) {
-        video.srcObject.getTracks().forEach(track => track.stop()); // Camera clean closure
+        video.srcObject.getTracks().forEach(track => track.stop()); 
     }
     passwordScreen.style.opacity = '0';
+    
+    // Play Background audio seamlessly upon verification interaction
+    bgMusic.play().catch(err => console.log("Audio autoplay protected by browser: ", err));
+
     setTimeout(() => {
         passwordScreen.classList.add('auth-hidden');
         mainContent.classList.remove('auth-hidden');
-        triggerAnimation(); // Start roses fallback
+        triggerAnimation(); // Initialize active flower falls
+        initScrollAnimations(); // Trigger Scroll Reveal
     }, 500);
 }
 
@@ -52,17 +63,14 @@ function startWebcam() {
         });
 }
 
-// Global variable references holder
 let faceMatcher = null;
 
 async function initFaceTracker() {
     try {
         scanStatus.innerText = "Syncing Recognition Models... 🧠";
         
-        // Dynamic production models link
         const modelUrl = 'https://raw.githubusercontent.com/AnshulChakravarty/face-api.js-models/master/';
         
-        // Concurrent parallel load to avoid setup execution timeouts
         await Promise.all([
             faceapi.nets.tinyFaceDetector.loadFromUri(modelUrl),
             faceapi.nets.faceLandmark68Net.loadFromUri(modelUrl),
@@ -71,11 +79,10 @@ async function initFaceTracker() {
         
         scanStatus.innerText = "Processing our images... 📝";
         
-        // Fetch reference images loaded inside your main directory
-        const imgYui = await faceapi.fetchImage('Yuii.png');
-        const imgSiya = await faceapi.fetchImage('Siyaa.jpg');
+        // References mapped cleanly to existing folder images
+        const imgYui = await faceapi.fetchImage('Yui.png');
+        const imgSiya = await faceapi.fetchImage('Siya.png');
         
-        // Multi-descriptor detection passes
         const descYui = await faceapi.detectSingleFace(imgYui, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
         const descSiya = await faceapi.detectSingleFace(imgSiya, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
         
@@ -84,15 +91,12 @@ async function initFaceTracker() {
             return;
         }
 
-        // Setup unified labeled matcher structures
         const labeledDescriptors = [
             new faceapi.LabeledFaceDescriptors('anshul', [descYui.descriptor]),
             new faceapi.LabeledFaceDescriptors('priyanshi', [descSiya.descriptor])
         ];
         
-        // 0.55 threshold setting makes matching tight and authentic
         faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.55);
-        
         scanStatus.innerText = "Scanner active. Stand together! 👥";
         startWebcam();
 
@@ -110,7 +114,6 @@ async function initFaceTracker() {
                 let anshulFound = false;
                 let priyanshiFound = false;
 
-                // Precision extraction loop matching array results
                 for (const face of liveDetections) {
                     const bestMatch = faceMatcher.findBestMatch(face.descriptor);
                     if (bestMatch.label === 'anshul') anshulFound = true;
@@ -139,5 +142,73 @@ async function initFaceTracker() {
         scanStatus.innerText = "Camera loading... Or use phrase below! 👇";
     }
 }
+
+// 1. Dynamic Flower/Rose Falling Engine
+function triggerAnimation() {
+    const container = document.getElementById('flower-container');
+    const flowers = ['🌹', '🌸', '💐', '❤️', '✨'];
+    
+    setInterval(() => {
+        if (document.hidden) return; // Tab optimization
+        const flower = document.createElement('div');
+        flower.className = 'floating-flower';
+        flower.innerText = flowers[Math.floor(Math.random() * flowers.length)];
+        flower.style.left = Math.random() * 100 + 'vw';
+        flower.style.animationDuration = Math.random() * 3 + 4 + 's'; 
+        flower.style.fontSize = Math.random() * 15 + 15 + 'px';
+        
+        container.appendChild(flower);
+        
+        setTimeout(() => {
+            flower.remove();
+        }, 7000);
+    }, 300);
+}
+
+// 2. High-Performance Intersection Observer for Timeline Reveal
+function initScrollAnimations() {
+    const items = document.querySelectorAll('.timeline-item');
+    const observerOptions = {
+        root: null,
+        threshold: 0.2,
+        rootMargin: "0px 0px -50px 0px"
+    };
+
+    const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+                observer.unobserve(entry.target); // Engine optimization
+            }
+        });
+    }, observerOptions);
+
+    items.forEach(item => observer.observe(item));
+}
+
+// 3. UI Smooth Scroll Interactions
+document.getElementById('start-journey-btn').addEventListener('click', () => {
+    document.getElementById('timeline-section').scrollIntoView({
+        behavior: 'smooth'
+    });
+});
+
+// 4. Video Reveal & Audio Automanagement
+const revealBtn = document.getElementById('reveal-btn');
+const videoWrapper = document.getElementById('video-wrapper');
+const myVideo = document.getElementById('my-video');
+
+revealBtn.addEventListener('click', () => {
+    videoWrapper.classList.remove('hidden');
+    videoWrapper.scrollIntoView({ behavior: 'smooth' });
+    
+    // Smoothly downscale ambient music when secret video launches
+    bgMusic.volume = 0.15;
+    myVideo.play();
+    
+    revealBtn.innerText = "Enjoy our moment... 🦋";
+    revealBtn.style.opacity = '0.7';
+    revealBtn.style.pointerEvents = 'none';
+});
 
 window.addEventListener('DOMContentLoaded', initFaceTracker);

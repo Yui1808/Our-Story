@@ -21,7 +21,7 @@ body {
 }
 
 /* ==========================================================================
-   1. Lock Screen Container & Frosted Glass Box (FIXED LAYOUT)
+   1. Lock Screen Container & Frosted Glass Box
    ========================================================================== */
 #password-screen {
     position: fixed;
@@ -47,7 +47,6 @@ body {
 }
 
 .lock-box {
-    /* Image texture blended seamlessly over glass transparency overlay */
     background: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)), url('image_129301.jpg') !important;
     background-size: cover !important;
     background-position: center !important;
@@ -88,13 +87,39 @@ body {
     font-weight: 400;
 }
 
-.input-wrapper {
+/* Fallback Box Styles Cleaned From HTML */
+#fallback-box {
+    margin-top: 20px;
+    width: 100%;
+}
+
+#toggle-fallback-btn {
+    background: none;
+    border: none;
+    color: #ff5e7e;
+    cursor: pointer;
+    font-size: 0.85rem;
+    text-decoration: underline;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+#toggle-fallback-btn:hover {
+    color: #ff476c;
+}
+
+#manual-auth {
+    margin-top: 15px;
     display: flex;
     flex-direction: column;
     gap: 12px;
+    align-items: center;
+    width: 100%;
 }
 
 #password-input {
+    width: 85%;
     padding: 12px 20px;
     background: rgba(255, 255, 255, 0.9);
     border: 1px solid rgba(255, 94, 126, 0.25);
@@ -118,8 +143,8 @@ body {
     background: linear-gradient(135deg, #ff7b93 0%, #ff476c 100%) !important;
     color: white;
     border: none;
-    padding: 12px;
-    font-size: 1rem;
+    padding: 10px 25px;
+    font-size: 0.95rem;
     font-weight: 600;
     border-radius: 30px;
     cursor: pointer;
@@ -132,7 +157,7 @@ body {
     box-shadow: 0 10px 22px rgba(255, 71, 108, 0.4) !important;
 }
 
-/* Visibility Authentication Classes */
+/* Visibility Control Classes */
 .auth-hidden {
     display: none !important;
 }
@@ -140,9 +165,10 @@ body {
 .error-visible {
     color: #ff5e7e;
     font-size: 0.85rem;
-    margin-top: 10px;
+    margin-top: 12px;
     font-weight: 600;
     animation: shake 0.3s ease-in-out;
+    display: block;
 }
 
 .error-hidden {
@@ -155,7 +181,7 @@ body {
     75% { transform: translateX(5px); }
 }
 
-/* Floating Flowers */
+/* Floating Flowers Engine Layer */
 #flower-container {
     position: fixed;
     top: 0;
@@ -163,23 +189,23 @@ body {
     width: 100vw;
     height: 100vh;
     pointer-events: none;
-    z-index: 99;
+    z-index: 999;
 }
 
 .floating-flower {
     position: absolute;
     font-size: 24px;
     animation: fall linear infinite;
-    opacity: 0.7;
+    opacity: 0.8;
 }
 
 @keyframes fall {
     0% { transform: translateY(-50px) rotate(0deg); opacity: 0; }
-    10% { opacity: 0.7; }
+    10% { opacity: 0.8; }
     100% { transform: translateY(105vh) rotate(360deg); opacity: 0; }
 }
 
-/* Hero Section */
+/* Hero Section Elements */
 .hero {
     height: 100vh;
     display: flex;
@@ -190,41 +216,40 @@ body {
     padding: 20px;
 }
 
-/* Integrated Matching PFPs Styling */
 .pfp-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 5px;
+    margin-bottom: 20px;
     position: relative;
 }
 
 .pfp {
-    width: 110px;
-    height: 110px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
     border: 4px solid #ffffff;
     object-fit: cover;
     box-shadow: 0 8px 20px rgba(255, 94, 126, 0.25);
-    transition: transform 0.4s ease;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .pfp-left {
-    transform: translateX(15px);
+    transform: translateX(18px);
     z-index: 1;
 }
 
 .pfp-right {
-    transform: translateX(-15px);
+    transform: translateX(-18px);
     z-index: 2;
 }
 
 .pfp-container:hover .pfp-left {
-    transform: translateX(0px) scale(1.05);
+    transform: translateX(-10px) scale(1.08);
 }
 
 .pfp-container:hover .pfp-right {
-    transform: translateX(0px) scale(1.05);
+    transform: translateX(10px) scale(1.08);
 }
 
 .main-title {
@@ -242,7 +267,7 @@ body {
 }
 
 .scroll-down-btn {
-    margin-top: 50px;
+    margin-top: 40px;
     font-size: 1rem;
     font-weight: 600;
     color: white;
@@ -257,23 +282,20 @@ body {
     transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.scroll-down-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 20px rgba(255, 94, 126, 0.5);
-}
-
 @keyframes bounce {
     0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
     40% { transform: translateY(-10px); }
     60% { transform: translateY(-5px); }
 }
 
-/* Timeline Container */
+/* ==========================================================================
+   2. Timeline Container & Dynamic Reveal Elements
+   ========================================================================== */
 .timeline-container {
     position: relative;
     max-width: 1000px;
     margin: 0 auto;
-    padding: 50px 20px;
+    padding: 60px 20px;
 }
 
 .timeline-line {
@@ -286,16 +308,16 @@ body {
     transform: translateX(-50%);
 }
 
-/* Timeline Items */
 .timeline-item {
     padding: 20px 40px;
     position: relative;
     width: 50%;
     opacity: 0;
-    transform: translateY(40px);
-    transition: all 0.6s ease-out;
+    transform: translateY(60px);
+    transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
+/* Fired via JavaScript Intersection Observer smoothly */
 .timeline-item.active {
     opacity: 1;
     transform: translateY(0);
@@ -304,10 +326,9 @@ body {
 .timeline-item.left { left: 0; text-align: right; }
 .timeline-item.right { left: 50%; text-align: left; }
 
-/* 2. Timeline Content (White Glass Effect Applied) */
 .timeline-content {
     padding: 30px;
-    background: rgba(255, 255, 255, 0.45) !important;
+    background: rgba(255, 255, 255, 0.55) !important;
     backdrop-filter: blur(20px) saturate(140%) !important;
     -webkit-backdrop-filter: blur(20px) saturate(140%) !important;
     border-radius: 24px;
@@ -318,8 +339,8 @@ body {
 }
 
 .timeline-content:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 15px 35px rgba(255, 94, 126, 0.2) !important;
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(255, 94, 126, 0.25) !important;
 }
 
 .timeline-date {
@@ -339,7 +360,6 @@ body {
     margin-top: 15px;
 }
 
-/* Dots on Timeline */
 .timeline-item::after {
     content: '';
     position: absolute;
@@ -349,20 +369,20 @@ body {
     border: 4px solid #fff;
     border-radius: 50%;
     top: 40px;
-    z-index: 1;
+    z-index: 10;
 }
 
 .left::after { right: -12px; }
 .right::after { left: -12px; }
 
-/* Final Section & Button */
+/* Final Section Content Viewports */
 .final-section {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 40px 20px;
+    padding: 60px 20px;
     text-align: center;
 }
 
@@ -376,6 +396,7 @@ body {
 .final-text {
     margin-bottom: 30px;
     color: #666;
+    max-width: 500px;
 }
 
 .aesthetic-btn {
@@ -388,7 +409,7 @@ body {
     border-radius: 30px;
     cursor: pointer;
     box-shadow: 0 10px 20px rgba(255, 94, 126, 0.3);
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: transform 0.3s, box-shadow 0.3s, opacity 0.3s;
 }
 
 .aesthetic-btn:hover {
@@ -396,15 +417,15 @@ body {
     box-shadow: 0 15px 25px rgba(255, 94, 126, 0.5);
 }
 
-/* Video Styling */
+/* Video Frame Wrapper styling */
 #video-wrapper {
     margin-top: 40px;
     max-width: 700px;
     width: 100%;
-    border-radius: 15px;
+    border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-    transition: opacity 0.8s ease;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.18);
+    transition: all 0.5s ease;
 }
 
 #video-wrapper video {
@@ -414,7 +435,6 @@ body {
 
 .hidden {
     display: none !important;
-    opacity: 0;
 }
 
 /* ==========================================================================
@@ -424,13 +444,13 @@ body {
     position: relative;
     width: 210px !important;
     height: 210px !important;
-    margin: 20px auto 15px auto !important;
+    margin: 25px auto 15px auto !important;
     border-radius: 50% !important;
     overflow: hidden !important;
     border: 3px solid rgba(255, 94, 126, 0.4) !important;
     box-shadow: 0 0 20px rgba(255, 94, 126, 0.15) !important;
     background: #111 !important;
-    display: block !important; /* Force browser execution */
+    display: block !important;
 }
 
 #webcam {
@@ -440,7 +460,6 @@ body {
     transform: scaleX(-1);
 }
 
-/* Moving Scanning Laser */
 .scan-laser {
     position: absolute;
     top: 0;
@@ -458,22 +477,31 @@ body {
     100% { top: 0%; }
 }
 
-.scan-overlay-status {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    background: rgba(0, 0, 0, 0.65);
-    padding: 6px 0;
-    color: #fff;
-    font-size: 0.8rem;
-    font-weight: 600;
+/* New wrapper for text below the circle to avoid clipping */
+.scan-status-wrapper {
+    margin: 12px auto 5px auto;
+    background: rgba(255, 94, 126, 0.1);
+    padding: 6px 16px;
+    border-radius: 20px;
+    display: inline-block;
+    max-width: 90%;
+    border: 1px solid rgba(255, 94, 126, 0.15);
 }
 
-/* Responsive Design */
+#scan-status {
+    color: #ff476c;
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    display: block;
+    text-align: center;
+}
+
+/* Responsive Structural Layouts */
 @media (max-width: 768px) {
     .pfp {
-        width: 85px;
-        height: 85px;
+        width: 95px;
+        height: 95px;
     }
     .timeline-line { left: 20px; }
     .timeline-item { width: 100%; left: 0 !important; text-align: left !important; padding-left: 50px; }

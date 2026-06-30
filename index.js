@@ -1,7 +1,7 @@
 // ==========================================
-// 0. Password Protection Lock Logic
+// 0. FOOLPROOF AI FACE RECOGNITION LOCK LOGIC
 // ==========================================
-const CORRECT_PASSWORD = "Will u be my Wifeee"; // Apni anniversary date ya jo chaho change kar sakte ho
+const CORRECT_PASSWORD = "Will u be my Wifeee";
 
 const passwordScreen = document.getElementById('password-screen');
 const mainContent = document.getElementById('main-content');
@@ -9,119 +9,135 @@ const passwordInput = document.getElementById('password-input');
 const passwordBtn = document.getElementById('password-btn');
 const errorMsg = document.getElementById('error-msg');
 
+const video = document.getElementById('webcam');
+const scanStatus = document.getElementById('scan-status');
+const toggleFallbackBtn = document.getElementById('toggle-fallback-btn');
+const manualAuth = document.getElementById('manual-auth');
+
+// Toggle Manual Pass Box
+toggleFallbackBtn.addEventListener('click', () => {
+    manualAuth.classList.toggle('auth-hidden');
+});
+
 function checkPassword() {
-    const enteredPassword = passwordInput.value.trim();
-    
-    if (enteredPassword === CORRECT_PASSWORD) {
-        passwordScreen.style.opacity = '0';
-        setTimeout(() => {
-            passwordScreen.classList.add('auth-hidden');
-            mainContent.classList.remove('auth-hidden');
-            
-            // Layout load hote hi scroll animation ko initialize karo
-            triggerAnimation();
-        }, 500);
+    if (passwordInput.value.trim() === CORRECT_PASSWORD) {
+        unlockDashboard();
     } else {
         errorMsg.className = "error-visible";
         passwordInput.value = "";
         passwordInput.focus();
     }
 }
-
 passwordBtn.addEventListener('click', checkPassword);
-passwordInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        checkPassword();
+passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') checkPassword(); });
+
+function unlockDashboard() {
+    if (video.srcObject) {
+        video.srcObject.getTracks().forEach(track => track.stop()); // Camera clean closure
     }
-});
-
-
-// ==========================================
-// 1. Falling Roses & Sunflowers Effect
-// ==========================================
-const flowerContainer = document.getElementById('flower-container');
-const flowers = ['🌹', '🌻']; 
-
-function createFlower() {
-    // Content load na hone tak animation trigger nahi karenge
-    if (mainContent.classList.contains('auth-hidden')) return;
-
-    const flower = document.createElement('div');
-    flower.classList.add('floating-flower');
-    
-    flower.innerText = flowers[Math.floor(Math.random() * flowers.length)];
-    
-    flower.style.left = Math.random() * 100 + 'vw';
-    flower.style.animationDuration = Math.random() * 3 + 4 + 's'; 
-    flower.style.fontSize = Math.random() * 15 + 15 + 'px'; 
-    
-    flowerContainer.appendChild(flower);
-    
+    passwordScreen.style.opacity = '0';
     setTimeout(() => {
-        flower.remove();
-    }, 7000);
+        passwordScreen.classList.add('auth-hidden');
+        mainContent.classList.remove('auth-hidden');
+        triggerAnimation(); // Start roses fallback
+    }, 500);
 }
 
-setInterval(createFlower, 300);
+function startWebcam() {
+    navigator.mediaDevices.getUserMedia({ video: {} })
+        .then(stream => { video.srcObject = stream; })
+        .catch(err => {
+            console.warn("Camera blocked");
+            scanStatus.innerText = "Camera restricted. Try password below! 👇";
+        });
+}
 
+// Global variable references holder
+let faceMatcher = null;
 
-// ==========================================
-// 2. Scroll Animation for Timeline Items
-// ==========================================
-const timelineItems = document.querySelectorAll('.timeline-item');
-
-const triggerAnimation = () => {
-    if (mainContent.classList.contains('auth-hidden')) return;
-    
-    const triggerBottom = window.innerHeight * 0.85;
-    
-    timelineItems.forEach(item => {
-        const itemTop = item.getBoundingClientRect().top;
+async function initFaceTracker() {
+    try {
+        scanStatus.innerText = "Syncing Recognition Models... 🧠";
         
-        if(itemTop < triggerBottom) {
-            item.classList.add('active');
+        // Dynamic production models link
+        const modelUrl = 'https://raw.githubusercontent.com/AnshulChakravarty/face-api.js-models/master/';
+        
+        // Concurrent parallel load to avoid setup execution timeouts
+        await Promise.all([
+            faceapi.nets.tinyFaceDetector.loadFromUri(modelUrl),
+            faceapi.nets.faceLandmark68Net.loadFromUri(modelUrl),
+            faceapi.nets.faceRecognitionNet.loadFromUri(modelUrl)
+        ]);
+        
+        scanStatus.innerText = "Processing our images... 📝";
+        
+        // Fetch reference images loaded inside your main directory
+        const imgYui = await faceapi.fetchImage('Yuii.png');
+        const imgSiya = await faceapi.fetchImage('Siyaa.jpg');
+        
+        // Multi-descriptor detection passes
+        const descYui = await faceapi.detectSingleFace(imgYui, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+        const descSiya = await faceapi.detectSingleFace(imgSiya, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+        
+        if (!descYui || !descSiya) {
+            scanStatus.innerText = "Face not clear in images. Use Phrase Bypass below!";
+            return;
         }
-    });
-};
 
-window.addEventListener('scroll', triggerAnimation);
+        // Setup unified labeled matcher structures
+        const labeledDescriptors = [
+            new faceapi.LabeledFaceDescriptors('anshul', [descYui.descriptor]),
+            new faceapi.LabeledFaceDescriptors('priyanshi', [descSiya.descriptor])
+        ];
+        
+        // 0.55 threshold setting makes matching tight and authentic
+        faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.55);
+        
+        scanStatus.innerText = "Scanner active. Stand together! 👥";
+        startWebcam();
 
+        video.addEventListener('playing', () => {
+            const intervalLoop = setInterval(async () => {
+                if (passwordScreen.classList.contains('auth-hidden')) {
+                    clearInterval(intervalLoop);
+                    return;
+                }
 
-// ==========================================
-// 3. Reveal Video Button Logic & Audio Controls
-// ==========================================
-const startJourneyBtn = document.getElementById('start-journey-btn');
-const timelineContainer = document.querySelector('.timeline-container');
-const revealBtn = document.getElementById('reveal-btn');
-const videoWrapper = document.getElementById('video-wrapper');
-const myVideo = document.getElementById('my-video');
-const bgMusic = document.getElementById('bg-music');
+                const liveDetections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+                                                    .withFaceLandmarks()
+                                                    .withFaceDescriptors();
 
-if (bgMusic) {
-    bgMusic.load(); 
+                let anshulFound = false;
+                let priyanshiFound = false;
+
+                // Precision extraction loop matching array results
+                for (const face of liveDetections) {
+                    const bestMatch = faceMatcher.findBestMatch(face.descriptor);
+                    if (bestMatch.label === 'anshul') anshulFound = true;
+                    if (bestMatch.label === 'priyanshi') priyanshiFound = true;
+                }
+
+                if (anshulFound && priyanshiFound) {
+                    scanStatus.innerText = "Match Found! Unlocking our world... ❤️";
+                    scanStatus.style.color = "#2ecc71";
+                    clearInterval(intervalLoop);
+                    setTimeout(unlockDashboard, 1000);
+                } else if (anshulFound && !priyanshiFound) {
+                    scanStatus.innerText = "Hey Anshul! Where is Priyanshi? 🤔";
+                    scanStatus.style.color = "#ff7b93";
+                } else if (!anshulFound && priyanshiFound) {
+                    scanStatus.innerText = "Hey Priyanshi! Bring Anshul in frame. 🥰";
+                    scanStatus.style.color = "#ff7b93";
+                } else {
+                    scanStatus.innerText = "Waiting for both of us... 👥";
+                    scanStatus.style.color = "#ffffff";
+                }
+            }, 600);
+        });
+    } catch (e) {
+        console.error("Initialization Engine Failed:", e);
+        scanStatus.innerText = "Camera loading... Or use phrase below! 👇";
+    }
 }
 
-startJourneyBtn.addEventListener('click', () => {
-    bgMusic.volume = 0.25;
-    
-    if (bgMusic.currentTime === 0 || bgMusic.paused) {
-        bgMusic.play().catch(err => console.log("Audio playback managed safely"));
-    }
-    
-    timelineContainer.scrollIntoView({ behavior: 'smooth' });
-});
-
-revealBtn.addEventListener('click', () => {
-    bgMusic.pause();
-    
-    videoWrapper.classList.remove('hidden');
-    videoWrapper.style.opacity = '1';
-    
-    setTimeout(() => {
-        videoWrapper.scrollIntoView({ behavior: 'smooth' });
-        myVideo.volume = 1.0; 
-        myVideo.play();
-    }, 200);
-    
-    revealBtn.style.display = 'none';
-});
+window.addEventListener('DOMContentLoaded', initFaceTracker);

@@ -9,26 +9,41 @@
 </head>
 <body>
 
-    <!-- 1. Password Protection Screen -->
+    <!-- 1. AI Face Scan Protection Screen -->
     <div id="password-screen">
-        <div class="lock-box">
-            <h2 class="lock-title">Our Private Space 🔒</h2>
-            <p class="lock-subtitle">Pass Jab milege tab batauga </p>
-            <div class="input-wrapper">
-                <input type="password" id="password-input" placeholder="Enter password (DDMM)...">
-                <button id="password-btn">Unlock ❤️</button>
+        <div class="lock-box face-scan-box">
+            <h2 class="lock-title">Not So Easily, Priyanshi... 🤫</h2>
+            <p class="lock-subtitle">I’ve woven a piece of my mind into this digital canvas, a melody playing on a loop just for you. But love requires a little memory, doesn't it? The key to unlocking this private space is hidden somewhere in our shared laughter, a quiet anchor to our chaos. Think back to where our world began... entry strictly reserved for the one who owns my finest thoughts. ❤️</p>
+            
+            <!-- Modern Webcam Container Viewport -->
+            <div class="webcam-container">
+                <video id="webcam" autoplay muted playsinline></video>
+                <div class="scan-laser"></div>
+                <div class="scan-overlay-status">
+                    <span id="scan-status">Initializing AI Scanner... 🧠</span>
+                </div>
             </div>
-            <p id="error-msg" class="error-hidden">Wrong password, try again love! 🤭</p>
+
+            <!-- Manual Password Fallback Box Trigger (Just in case camera blocks) -->
+            <div id="fallback-box" style="margin-top: 15px;">
+                <button id="toggle-fallback-btn" style="background:none; border:none; color:#ff5e7e; cursor:pointer; font-size:0.85rem; text-decoration:underline; font-family:'Poppins',sans-serif;">Or unlock with secret phrase...</button>
+                <div id="manual-auth" class="auth-hidden" style="margin-top: 15px; display:flex; flex-direction:column; gap:10px; align-items:center;">
+                    <input type="password" id="password-input" placeholder="Enter pass to dive in..." style="padding:10px 20px; border-radius:20px; border:1px solid rgba(255,94,126,0.3); text-align:center; outline:none; font-family:'Poppins',sans-serif; background:rgba(255,255,255,0.8);">
+                    <button id="password-btn" style="background: linear-gradient(135deg, #ff7b93 0%, #ff476c 100%); color:white; border:none; padding:8px 20px; border-radius:20px; cursor:pointer; font-size:0.9rem; font-weight:600;">Try Your Luck ✨</button>
+                </div>
+            </div>
+            
+            <p id="error-msg" class="error-hidden" style="margin-top: 10px;">Giving up already, love? Try again. 🤭</p>
         </div>
     </div>
 
-    <!-- 2. Main Content Wrapper (Pehle se hidden rahega jab tak auth clear na ho) -->
+    <!-- 2. Main Content Wrapper -->
     <div id="main-content" class="auth-hidden">
 
         <!-- Background Music Element -->
         <audio id="bg-music" loop preload="auto">
             <source src="Fav.mp3" type="audio/mpeg">
-        </audio>
+        </audio>   
 
         <div id="flower-container"></div>
 
@@ -77,7 +92,7 @@
                 <div class="timeline-date">26th June</div>
                 <div class="timeline-content">
                     <h3>The Reality 🗺️</h3>
-                    <p>"The day our digital world finally dissolved into beautiful reality. I still smile thinking about how incredibly nervous I was showing up with a box of  Maggi which prepared the way u like , carefully picked earrings, and a bracelet, wondering if everything would be perfect. But the moment I stood face-to-face with you and looked into your eyes, all the chaos in my head just quieted down. Seeing you right there in front of me made every single obstacle, every sleepless night, and every second of waiting entirely worth it."</p>
+                    <p>"The day our digital world finally dissolved into beautiful reality. I still smile thinking about how incredibly nervous I was showing up with a box of Maggi which prepared the way u like , carefully picked earrings, and a bracelet, wondering if everything would be perfect. But the moment I stood face-to-face with you and looked into your eyes, all the chaos in my head just quieted down. Seeing you right there in front of me made every single obstacle, every sleepless night, and every second of waiting entirely worth it."</p>
                     <div class="flower-icon">🌹</div>
                 </div>
             </div>
@@ -97,8 +112,10 @@
             </div>
         </section>
 
-    </div> <!-- Main Content Wrapper End -->
+    </div>
 
+    <!-- Face API Core Dependencies Loaded Dynamically to Ensure Robust Execution -->
+    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <script src="index.js"></script>
 </body>
 </html>

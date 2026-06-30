@@ -69,28 +69,35 @@ function startWebcam() {
 
 async function initFaceTracker() {
     try {
-        // 1. Pehle camera shuru karo taaki pata chale sab chal raha hai!
+        console.log("=== STEP 1: Starting Webcam ===");
         startWebcam(); 
 
         scanStatus.innerText = "Syncing Recognition Models... 🧠";
         
-        const modelUrl = './models/'; // Trailing slash zaroor lagana
+        const modelUrl = './models/'; 
+        console.log("=== STEP 2: Loading Models from:", modelUrl);
         
         await Promise.all([
             faceapi.nets.tinyFaceDetector.loadFromUri(modelUrl),
             faceapi.nets.faceLandmark68Net.loadFromUri(modelUrl),
             faceapi.nets.faceRecognitionNet.loadFromUri(modelUrl)
         ]);
+        console.log("=== STEP 3: Models loaded successfully! ===");
         
         scanStatus.innerText = "Processing our reference images... 📝";
         
+        console.log("=== STEP 4: Fetching Reference Images ===");
         const imgYui = await faceapi.fetchImage('Yuii.png');
-        const imgSiya = await faceapi.fetchImage('Siyaa.jpg');
+        const imgSiya = await faceapi.fetchImage('Siyaa.jpg'); 
         
+        console.log("=== STEP 5: Detecting faces in reference images ===");
         const descYui = await faceapi.detectSingleFace(imgYui, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
         const descSiya = await faceapi.detectSingleFace(imgSiya, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
         
+        console.log("Reference Detection Results:", { descYui, descSiya });
+        
         if (!descYui || !descSiya) {
+            console.error("❌ CRITICAL: Reference images mein chehra clear nahi mila!");
             scanStatus.innerText = "Reference face not clear. Use Phrase Bypass! 👇";
             return;
         }
@@ -101,22 +108,67 @@ async function initFaceTracker() {
         ];
         
         faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.55);
+        console.log("=== STEP 6: FaceMatcher Initialized! ===");
+        
         scanStatus.innerText = "Scanner active. Stand together! 👥";
 
-        // 2. Camera already upar start ho chuka hai, ab yahan bas event listener chalega
-        video.addEventListener('playing', () => {
-            // ... (baaki ka andar ka interval code bilkul same rahega)
-        });
+        // === STEP 7: DIRECTLY START THE SCANNING LOOP (No event wrapper!) ===
+        console.log("=== STEP 7: Launching Scanning Loop directly! 🚀 ===");
+        
+        scanInterval = setInterval(async () => {
+            if (passwordScreen.classList.contains('auth-hidden')) {
+                clearInterval(scanInterval);
+                return;
+            }
+
+            // Safety check: Agar video abhi pause hai toh wait karega
+            if (video.paused || video.ended) return;
+
+            try {
+                const liveDetections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+                                                    .withFaceLandmarks()
+                                                    .withFaceDescriptors();
+
+                let anshulFound = false;
+                let priyanshiFound = false;
+
+                for (const face of liveDetections) {
+                    const bestMatch = faceMatcher.findBestMatch(face.descriptor);
+                    console.log("Live face match found:", bestMatch.toString()); 
+                    
+                    if (bestMatch.label === 'anshul') anshulFound = true;
+                    if (bestMatch.label === 'priyanshi') priyanshiFound = true;
+                }
+
+                if (anshulFound && priyanshiFound) {
+                    scanStatus.innerText = "Match Found! Unlocking our world... ❤️";
+                    scanStatus.style.color = "#2ecc71";
+                    clearInterval(scanInterval);
+                    setTimeout(unlockDashboard, 1000);
+                } else if (anshulFound && !priyanshiFound) {
+                    scanStatus.innerText = "Hey Anshul! Where is Priyanshi? 🤔";
+                    scanStatus.style.color = "#ff7b93";
+                } else if (!anshulFound && priyanshiFound) {
+                    scanStatus.innerText = "Hey Priyanshi! Bring Anshul in frame. 🥰";
+                    scanStatus.style.color = "#ff7b93";
+                } else {
+                    scanStatus.innerText = "Waiting for both of us... 👥";
+                    scanStatus.style.color = "#ffffff";
+                }
+            } catch (scanErr) {
+                console.error("Error during active frame scanning:", scanErr);
+            }
+        }, 600);
 
     } catch (e) {
-        console.error("Initialization Engine Failed:", e);
+        console.error("❌ OOPS! Initialization Engine Failed here:", e);
         scanStatus.innerText = "Bypass verification with phrase below! 👇";
     }
 }
 // 1. Dynamic Flower/Rose Falling Engine
 function triggerAnimation() {
     const container = document.getElementById('flower-container');
-    const flowers = ['🌹', '🌸', '💐', '❤️', '✨'];
+    const flowers = ['🌹', '🌸', '💐', '❤️', '🌻'];
     
     setInterval(() => {
         if (document.hidden) return; 

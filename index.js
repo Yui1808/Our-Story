@@ -15,6 +15,9 @@ const toggleFallbackBtn = document.getElementById('toggle-fallback-btn');
 const manualAuth = document.getElementById('manual-auth');
 const bgMusic = document.getElementById('bg-music');
 
+let faceMatcher = null;
+let scanInterval = null;
+
 // Toggle Manual Pass Box
 toggleFallbackBtn.addEventListener('click', () => {
     manualAuth.classList.toggle('auth-hidden');
@@ -38,6 +41,7 @@ passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') check
 
 // Master Unlock Sequence
 function unlockDashboard() {
+    if (scanInterval) clearInterval(scanInterval);
     if (video.srcObject) {
         video.srcObject.getTracks().forEach(track => track.stop()); 
     }
@@ -55,21 +59,20 @@ function unlockDashboard() {
 }
 
 function startWebcam() {
-    navigator.mediaDevices.getUserMedia({ video: {} })
+    navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } })
         .then(stream => { video.srcObject = stream; })
         .catch(err => {
-            console.warn("Camera blocked");
+            console.warn("Camera blocked or unavailable:", err);
             scanStatus.innerText = "Camera restricted. Try password below! 👇";
         });
 }
-
-let faceMatcher = null;
 
 async function initFaceTracker() {
     try {
         scanStatus.innerText = "Syncing Recognition Models... 🧠";
         
-        const modelUrl = 'https://raw.githubusercontent.com/AnshulChakravarty/face-api.js-models/master/';
+        // Foolproof Local Directory serving via GitHub Pages
+        const modelUrl = './models';
         
         await Promise.all([
             faceapi.nets.tinyFaceDetector.loadFromUri(modelUrl),
@@ -77,9 +80,9 @@ async function initFaceTracker() {
             faceapi.nets.faceRecognitionNet.loadFromUri(modelUrl)
         ]);
         
-        scanStatus.innerText = "Processing our images... 📝";
+        scanStatus.innerText = "Processing our reference images... 📝";
         
-        // References mapped cleanly to existing folder images
+        // Target matching reference assets inside root
         const imgYui = await faceapi.fetchImage('Yui.png');
         const imgSiya = await faceapi.fetchImage('Siya.png');
         
@@ -87,7 +90,7 @@ async function initFaceTracker() {
         const descSiya = await faceapi.detectSingleFace(imgSiya, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
         
         if (!descYui || !descSiya) {
-            scanStatus.innerText = "Face not clear in images. Use Phrase Bypass below!";
+            scanStatus.innerText = "Reference face not clear. Use Phrase Bypass! 👇";
             return;
         }
 
@@ -101,9 +104,9 @@ async function initFaceTracker() {
         startWebcam();
 
         video.addEventListener('playing', () => {
-            const intervalLoop = setInterval(async () => {
+            scanInterval = setInterval(async () => {
                 if (passwordScreen.classList.contains('auth-hidden')) {
-                    clearInterval(intervalLoop);
+                    clearInterval(scanInterval);
                     return;
                 }
 
@@ -123,7 +126,7 @@ async function initFaceTracker() {
                 if (anshulFound && priyanshiFound) {
                     scanStatus.innerText = "Match Found! Unlocking our world... ❤️";
                     scanStatus.style.color = "#2ecc71";
-                    clearInterval(intervalLoop);
+                    clearInterval(scanInterval);
                     setTimeout(unlockDashboard, 1000);
                 } else if (anshulFound && !priyanshiFound) {
                     scanStatus.innerText = "Hey Anshul! Where is Priyanshi? 🤔";
@@ -139,7 +142,7 @@ async function initFaceTracker() {
         });
     } catch (e) {
         console.error("Initialization Engine Failed:", e);
-        scanStatus.innerText = "Camera loading... Or use phrase below! 👇";
+        scanStatus.innerText = "Bypass verification with phrase below! 👇";
     }
 }
 
@@ -149,7 +152,7 @@ function triggerAnimation() {
     const flowers = ['🌹', '🌸', '💐', '❤️', '✨'];
     
     setInterval(() => {
-        if (document.hidden) return; // Tab optimization
+        if (document.hidden) return; 
         const flower = document.createElement('div');
         flower.className = 'floating-flower';
         flower.innerText = flowers[Math.floor(Math.random() * flowers.length)];
@@ -159,9 +162,7 @@ function triggerAnimation() {
         
         container.appendChild(flower);
         
-        setTimeout(() => {
-            flower.remove();
-        }, 7000);
+        setTimeout(() => { flower.remove(); }, 7000);
     }, 300);
 }
 
@@ -178,7 +179,7 @@ function initScrollAnimations() {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('active');
-                observer.unobserve(entry.target); // Engine optimization
+                observer.unobserve(entry.target); 
             }
         });
     }, observerOptions);
@@ -202,7 +203,6 @@ revealBtn.addEventListener('click', () => {
     videoWrapper.classList.remove('hidden');
     videoWrapper.scrollIntoView({ behavior: 'smooth' });
     
-    // Smoothly downscale ambient music when secret video launches
     bgMusic.volume = 0.15;
     myVideo.play();
     

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Our Story | Anshul & Priyanshi</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght=600&family=Poppins:wght=300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -14,16 +14,14 @@
             <h2 class="lock-title">Not So Easily, Priyanshi... 🤫</h2>
             <p class="lock-subtitle">I’ve woven a piece of my mind into this digital canvas, a melody playing on a loop just for you. But love requires a little memory, doesn't it? The key to unlocking this private space is hidden somewhere in our shared laughter, a quiet anchor to our chaos. Think back to where our world began... entry strictly reserved for the one who owns my finest thoughts. ❤️</p>
             
-           <!-- Modern Webcam Container Viewport -->
-<div class="webcam-container">
-    <video id="webcam" autoplay muted playsinline></video>
-    <div class="scan-laser"></div>
-</div>
+            <div class="webcam-container">
+                <video id="webcam" autoplay muted playsinline></video>
+                <div class="scan-laser"></div>
+            </div>
 
-<!-- Status text shifted cleanly OUTSIDE the circle -->
-<div class="scan-status-wrapper">
-    <span id="scan-status">Initializing AI Scanner... 🧠</span>
-</div>
+            <div class="scan-status-wrapper">
+                <span id="scan-status">Initializing AI Scanner... 🧠</span>
+            </div>
 
             <div id="fallback-box">
                 <button id="toggle-fallback-btn">Or unlock with secret phrase...</button>
@@ -38,7 +36,6 @@
     </div>
 
     <div id="main-content" class="auth-hidden">
-
         <audio id="bg-music" loop preload="auto">
             <source src="Fav.mp3" type="audio/mpeg">
         </audio>   
@@ -109,10 +106,9 @@
                 </video>
             </div>
         </section>
-
     </div>
 
-    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
-    <script src="index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <script src="index.js" defer></script>
 </body>
 </html>
